@@ -178,22 +178,24 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
         {allItems.map((item) => (
           <Card
             key={item.id}
-            className="w-full hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-default border border-gray-700 bg-gray-800 hover:bg-gray-750 rounded-xl overflow-hidden group"
+            className="w-full cursor-default border border-gray-700 bg-gray-800 hover:bg-gray-750 rounded-xl overflow-hidden group card-hover"
           >
             <CardBody className="p-0">
               {getImageUrl(item) ? (
-                <div className="w-full h-48 overflow-hidden bg-gray-900">
+                <div className="w-full h-48 bg-gray-900 image-container">
                   <Image
                     alt={item.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="w-full h-full object-cover image-zoom"
                     src={getImageUrl(item)!}
                   />
                 </div>
               ) : (
-                <PlaceholderImage
-                  type={getPlaceholderType(item)}
-                  className="h-48 w-full transition-transform duration-300 group-hover:scale-110"
-                />
+                <div className="w-full h-48 image-container">
+                  <PlaceholderImage
+                    type={getPlaceholderType(item)}
+                    className="h-48 w-full image-zoom"
+                  />
+                </div>
               )}
             </CardBody>
             <CardFooter className="flex flex-col items-start gap-3 p-4">
@@ -219,7 +221,7 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
                   variant="light"
                   color={isFavorite(item.id) ? "danger" : "default"}
                   onPress={() => handleFavoriteToggle(item)}
-                  className="cursor-pointer hover:scale-110 transition-transform flex-shrink-0"
+                  className="cursor-pointer flex-shrink-0 heart-button flex items-center justify-center rounded-full"
                 >
                   {isFavorite(item.id) ? <HeartIconFilled /> : <HeartIcon />}
                 </Button>

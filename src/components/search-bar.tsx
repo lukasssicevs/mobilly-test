@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Autocomplete, AutocompleteItem, Button, Spinner } from "@heroui/react";
+import { Autocomplete, AutocompleteItem, Button } from "@heroui/react";
 import useSWR from "swr";
 import { useFavoritesStore, SpotifyItem } from "@/store/favorites";
 
@@ -67,6 +67,29 @@ const HeartIconFilled = () => (
   </svg>
 );
 
+const LoadingSpinner = () => (
+  <svg
+    className="animate-spin h-5 w-5 text-white"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
+  </svg>
+);
+
 export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
   const [selectedQuery, setSelectedQuery] = useState("");
   const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
@@ -104,17 +127,19 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           (item: SpotifyItem) => item.id === key
         );
         if (selected) {
-          setSelectedQuery(selected.name);
-          // Automatically trigger search when item is selected from popover
-          onSearch(selected.name);
+          // Use setTimeout to ensure the value is set properly
+          setTimeout(() => {
+            setSelectedQuery(selected.name);
+            onSearch(selected.name);
+          }, 10);
         }
       }
     },
     [autocompleteData, onSearch]
   );
 
-  const handlePointerDownFavorite = useCallback(
-    (item: SpotifyItem, e: React.PointerEvent) => {
+  const handleFavoriteClick = useCallback(
+    (item: SpotifyItem, e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
 
@@ -130,9 +155,9 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="flex gap-2 flex-col justify-center items-center w-full">
-        <div className="flex gap-3 items-center w-full">
+        <div className="flex gap-3 items-center w-full flex-col md:flex-row">
           {/* Autocomplete Container */}
-          <div className="flex-1 bg-gray-900 rounded-2xl shadow-xl border border-gray-700 hover:border-gray-600 transition-colors duration-200">
+          <div className="w-full md:flex-1 bg-gray-900 rounded-2xl shadow-xl border border-gray-700 hover:border-gray-600 transition-colors duration-200">
             <Autocomplete
               isClearable={true}
               allowsCustomValue
@@ -211,8 +236,12 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
               }}
             >
               {(item: SpotifyItem) => (
-                <AutocompleteItem key={item.id} textValue={item.name}>
-                  <div className="flex items-center gap-3">
+                <AutocompleteItem
+                  key={item.id}
+                  textValue={item.name}
+                  className="focus:outline-none"
+                >
+                  <div className="flex items-center gap-3 w-full">
                     <div className="flex-shrink-0">
                       <div className="w-8 h-8 bg-gradient-to-br from-green-800 to-green-700 rounded-lg flex items-center justify-center">
                         <MusicIcon />
@@ -233,23 +262,26 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
                       <div className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded-md">
                         Track
                       </div>
-                      <button
-                        onPointerDown={(e) => {
+                      <div
+                        onMouseDown={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handlePointerDownFavorite(item, e);
+                          handleFavoriteClick(item, e);
                         }}
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onTouchStart={(e) => e.stopPropagation()}
-                        className="text-gray-400 hover:text-red-400 transition-colors p-1 rounded-md hover:bg-gray-700 relative z-50"
-                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        className="text-gray-400 hover:text-red-400 p-1 rounded-md hover:bg-gray-700 cursor-pointer select-none heart-button"
+                        role="button"
+                        tabIndex={0}
                       >
                         {isFavorite(item.id) ? (
                           <HeartIconFilled />
                         ) : (
                           <HeartIcon />
                         )}
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </AutocompleteItem>
@@ -263,13 +295,9 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
             disabled={!selectedQuery.trim()}
             size="lg"
             radius="lg"
-            className="px-8 flex w-40 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 hover:scale-105 active:scale-95 transition-all duration-200 h-14 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-xl hover:shadow-2xl text-white border-0 disabled:bg-gray-700 disabled:from-gray-700 disabled:to-gray-700 rounded-2xl"
+            className="px-8 flex w-full md:w-40 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 hover:scale-105 active:scale-95 transition-all duration-200 h-14 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-xl hover:shadow-2xl text-white border-0 disabled:bg-gray-700 disabled:from-gray-700 disabled:to-gray-700 rounded-2xl"
           >
-            {isLoading ? (
-              <Spinner variant="simple" color="success" />
-            ) : (
-              "Search"
-            )}
+            {isLoading ? <LoadingSpinner /> : "Search"}
           </Button>
         </div>
         <p className="text-xs text-gray-400 text-center">

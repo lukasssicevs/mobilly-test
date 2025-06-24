@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-16  w-full">
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold  text-green-500 mb-4">
+        <h1 className="text-5xl font-bold  text-green-400 mb-4">
           Spotify Search
         </h1>
         <p className="text-lg text-gray-300">
@@ -68,7 +68,7 @@ export default function Home() {
           key="search"
           title={
             <div className="flex items-center space-x-2">
-              <span>Search Results</span>
+              <span className="text-nowrap">Search Results</span>
               {searchQuery && searchResults && (
                 <span className="text-xs bg-green-900/50 text-green-300 px-2 py-1 rounded-full">
                   {(searchResults.tracks?.total || 0) +
