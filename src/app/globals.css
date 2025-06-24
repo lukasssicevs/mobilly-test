@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -12,22 +12,157 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Force dark mode colors */
+.dark,
+[data-theme="dark"] {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+/* Prevent scrollbar from expanding page width */
+html {
+  overflow-y: overlay;
+  scrollbar-gutter: stable;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbar for autocomplete */
+/* Custom scrollbar styling for main page */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.6);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+/* Override any remaining blue colors with black palette */
+[data-color="primary"] {
+  --heroui-primary: 34 197 94 !important;
+  --heroui-primary-50: 240 253 244 !important;
+  --heroui-primary-100: 220 252 231 !important;
+  --heroui-primary-200: 187 247 208 !important;
+  --heroui-primary-300: 134 239 172 !important;
+  --heroui-primary-400: 74 222 128 !important;
+  --heroui-primary-500: 34 197 94 !important;
+  --heroui-primary-600: 22 163 74 !important;
+  --heroui-primary-700: 21 128 61 !important;
+  --heroui-primary-800: 22 101 52 !important;
+  --heroui-primary-900: 20 83 45 !important;
+  --heroui-primary-foreground: 255 255 255 !important;
+}
+
+[data-color="secondary"] {
+  --heroui-secondary: 107 114 128 !important;
+  --heroui-secondary-50: 249 250 251 !important;
+  --heroui-secondary-100: 243 244 246 !important;
+  --heroui-secondary-200: 229 231 235 !important;
+  --heroui-secondary-300: 209 213 219 !important;
+  --heroui-secondary-400: 156 163 175 !important;
+  --heroui-secondary-500: 107 114 128 !important;
+  --heroui-secondary-600: 75 85 99 !important;
+  --heroui-secondary-700: 55 65 81 !important;
+  --heroui-secondary-800: 31 41 55 !important;
+  --heroui-secondary-900: 17 24 39 !important;
+  --heroui-secondary-foreground: 255 255 255 !important;
+}
+
+[data-color="default"] {
+  --heroui-default: 55 65 81 !important;
+  --heroui-default-50: 249 250 251 !important;
+  --heroui-default-100: 243 244 246 !important;
+  --heroui-default-200: 229 231 235 !important;
+  --heroui-default-300: 209 213 219 !important;
+  --heroui-default-400: 156 163 175 !important;
+  --heroui-default-500: 107 114 128 !important;
+  --heroui-default-600: 75 85 99 !important;
+  --heroui-default-700: 55 65 81 !important;
+  --heroui-default-800: 31 41 55 !important;
+  --heroui-default-900: 17 24 39 !important;
+  --heroui-default-foreground: 255 255 255 !important;
+}
+
+/* Force tabs to use black palette */
+[data-slot="tab"] {
+  color: rgb(156 163 175) !important;
+}
+
+[data-slot="tab"][data-selected="true"] {
+  color: rgb(74 222 128) !important;
+}
+
+[data-slot="tab"]:hover {
+  color: rgb(209 213 219) !important;
+}
+
+/* Force chips to use black palette */
+[data-slot="chip"][data-color="primary"] {
+  background-color: rgb(21 128 61) !important;
+  color: rgb(255 255 255) !important;
+}
+
+[data-slot="chip"][data-color="secondary"] {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(255 255 255) !important;
+}
+
+[data-slot="chip"][data-color="default"] {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(255 255 255) !important;
+}
+
+/* Force buttons to use correct colors */
+[data-slot="button"][data-color="primary"] {
+  background: linear-gradient(
+    to right,
+    rgb(34 197 94),
+    rgb(22 163 74)
+  ) !important;
+  color: rgb(255 255 255) !important;
+}
+
+[data-slot="button"][data-color="danger"] {
+  background-color: rgb(220 38 38) !important;
+  color: rgb(255 255 255) !important;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Custom scrollbar for other elements */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
 .scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -35,22 +170,22 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 2px;
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background-color: rgba(156, 163, 175, 0.8);
 }
 
 /* Dark mode scrollbar */
 @media (prefers-color-scheme: dark) {
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 }
 
@@ -65,7 +200,7 @@ body {
 
 /* Custom focus styles */
 .focus-ring:focus-visible {
-  outline: 2px solid hsl(var(--primary));
+  outline: 2px solid rgb(34 197 94);
   outline-offset: 2px;
 }
 

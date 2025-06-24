@@ -7,72 +7,30 @@ import {
   Image,
   Button,
   Chip,
-  Divider,
+  Spinner,
 } from "@heroui/react";
 import { useFavoritesStore, SpotifyItem } from "@/store/favorites";
 import { PlaceholderImage } from "./placeholder-image";
 
-interface SpotifyTrack {
-  id: string;
-  name: string;
-  album: {
-    id: string;
-    name: string;
-    images?: Array<{
-      url: string;
-      height: number;
-      width: number;
-    }>;
-  };
-  artists: Array<{
-    id: string;
-    name: string;
-  }>;
-  external_urls: {
-    spotify: string;
-  };
-}
-
-interface SpotifyAlbum {
-  id: string;
-  name: string;
-  images: Array<{
-    url: string;
-    height: number;
-    width: number;
-  }>;
-  artists: Array<{
-    id: string;
-    name: string;
-  }>;
-  external_urls: {
-    spotify: string;
-  };
-}
-
-interface SpotifyArtist {
-  id: string;
-  name: string;
-  images?: Array<{
-    url: string;
-    height: number;
-    width: number;
-  }>;
-  external_urls: {
-    spotify: string;
-  };
-}
-
 interface SearchResultsProps {
   results: {
-    tracks?: { items: SpotifyTrack[]; total: number };
-    albums?: { items: SpotifyAlbum[]; total: number };
-    artists?: { items: SpotifyArtist[]; total: number };
+    tracks?: {
+      items: SpotifyItem[];
+      total: number;
+    };
+    albums?: {
+      items: SpotifyItem[];
+      total: number;
+    };
+    artists?: {
+      items: SpotifyItem[];
+      total: number;
+    };
   };
-  isLoading?: boolean;
+  isLoading: boolean;
 }
 
-const HeartIconComponent = () => (
+const HeartIcon = () => (
   <svg
     className="w-4 h-4"
     fill="none"
@@ -101,9 +59,13 @@ const HeartIconFilled = () => (
 );
 
 export function SearchResults({ results, isLoading }: SearchResultsProps) {
-  const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
+  const { favorites, addFavorite, removeFavorite } = useFavoritesStore();
 
-  const handleToggleFavorite = (item: SpotifyItem) => {
+  const isFavorite = (id: string) => {
+    return favorites.some((fav) => fav.id === id);
+  };
+
+  const handleFavoriteToggle = (item: SpotifyItem) => {
     if (isFavorite(item.id)) {
       removeFavorite(item.id);
     } else {
@@ -111,249 +73,169 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
     }
   };
 
-  const renderTrack = (track: SpotifyTrack) => {
-    const spotifyItem: SpotifyItem = {
-      id: track.id,
-      name: track.name,
-      type: "track",
-      images: track.album?.images,
-      artists: track.artists,
-      album: track.album,
-      external_urls: track.external_urls,
-    };
-
-    return (
-      <Card
-        key={track.id}
-        className="w-full max-w-sm hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-default"
-      >
-        <CardBody className="p-0">
-          {track.album?.images?.[0]?.url ? (
-            <Image
-              alt={track.name}
-              className="w-full object-cover h-48"
-              src={track.album.images[0].url}
-            />
-          ) : (
-            <PlaceholderImage type="album" className="h-48" />
-          )}
-        </CardBody>
-        <CardFooter className="flex flex-col items-start gap-2">
-          <div className="flex justify-between items-start w-full">
-            <div className="flex-1">
-              <h4 className="font-semibold text-sm truncate">{track.name}</h4>
-              <p className="text-xs text-default-500 truncate">
-                {track.artists?.map((artist) => artist.name).join(", ")}
-              </p>
-              <p className="text-xs text-default-400 truncate">
-                {track.album?.name}
-              </p>
-            </div>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onClick={() => handleToggleFavorite(spotifyItem)}
-              className={`cursor-pointer hover:scale-110 transition-transform ${
-                isFavorite(track.id)
-                  ? "text-red-500 hover:text-red-600"
-                  : "text-default-400 hover:text-red-400"
-              }`}
-            >
-              {isFavorite(track.id) ? (
-                <HeartIconFilled />
-              ) : (
-                <HeartIconComponent />
-              )}
-            </Button>
-          </div>
-          <Chip size="sm" variant="flat" color="primary">
-            Track
-          </Chip>
-        </CardFooter>
-      </Card>
-    );
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "track":
+        return "success";
+      case "album":
+        return "default";
+      case "artist":
+        return "default";
+      default:
+        return "default";
+    }
   };
 
-  const renderAlbum = (album: SpotifyAlbum) => {
-    const spotifyItem: SpotifyItem = {
-      id: album.id,
-      name: album.name,
-      type: "album",
-      images: album.images,
-      artists: album.artists,
-      external_urls: album.external_urls,
-    };
-
-    return (
-      <Card
-        key={album.id}
-        className="w-full max-w-sm hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-default"
-      >
-        <CardBody className="p-0">
-          {album.images?.[0]?.url ? (
-            <Image
-              alt={album.name}
-              className="w-full object-cover h-48"
-              src={album.images[0].url}
-            />
-          ) : (
-            <PlaceholderImage type="album" className="h-48" />
-          )}
-        </CardBody>
-        <CardFooter className="flex flex-col items-start gap-2">
-          <div className="flex justify-between items-start w-full">
-            <div className="flex-1">
-              <h4 className="font-semibold text-sm truncate">{album.name}</h4>
-              <p className="text-xs text-default-500 truncate">
-                {album.artists?.map((artist) => artist.name).join(", ")}
-              </p>
-            </div>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onClick={() => handleToggleFavorite(spotifyItem)}
-              className={`cursor-pointer hover:scale-110 transition-transform ${
-                isFavorite(album.id)
-                  ? "text-red-500 hover:text-red-600"
-                  : "text-default-400 hover:text-red-400"
-              }`}
-            >
-              {isFavorite(album.id) ? (
-                <HeartIconFilled />
-              ) : (
-                <HeartIconComponent />
-              )}
-            </Button>
-          </div>
-          <Chip size="sm" variant="flat" color="secondary">
-            Album
-          </Chip>
-        </CardFooter>
-      </Card>
-    );
+  const getImageUrl = (item: SpotifyItem) => {
+    if (item.images && item.images.length > 0) {
+      return item.images[0].url;
+    }
+    if (
+      item.type === "track" &&
+      item.album?.images &&
+      item.album.images.length > 0
+    ) {
+      return item.album.images[0].url;
+    }
+    return null;
   };
 
-  const renderArtist = (artist: SpotifyArtist) => {
-    const spotifyItem: SpotifyItem = {
-      id: artist.id,
-      name: artist.name,
-      type: "artist",
-      images: artist.images,
-      external_urls: artist.external_urls,
-    };
+  const getPlaceholderType = (item: SpotifyItem) => {
+    if (item.type === "artist") return "artist";
+    return "album";
+  };
 
-    return (
-      <Card
-        key={artist.id}
-        className="w-full max-w-sm hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-default"
-      >
-        <CardBody className="p-0">
-          {artist.images?.[0]?.url ? (
-            <Image
-              alt={artist.name}
-              className="w-full object-cover h-48"
-              src={artist.images[0].url}
-            />
-          ) : (
-            <PlaceholderImage type="artist" className="h-48" />
-          )}
-        </CardBody>
-        <CardFooter className="flex flex-col items-start gap-2">
-          <div className="flex justify-between items-start w-full">
-            <div className="flex-1">
-              <h4 className="font-semibold text-sm truncate">{artist.name}</h4>
-            </div>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onClick={() => handleToggleFavorite(spotifyItem)}
-              className={`cursor-pointer hover:scale-110 transition-transform ${
-                isFavorite(artist.id)
-                  ? "text-red-500 hover:text-red-600"
-                  : "text-default-400 hover:text-red-400"
-              }`}
-            >
-              {isFavorite(artist.id) ? (
-                <HeartIconFilled />
-              ) : (
-                <HeartIconComponent />
-              )}
-            </Button>
-          </div>
-          <Chip size="sm" variant="flat" color="success">
-            Artist
-          </Chip>
-        </CardFooter>
-      </Card>
-    );
+  const getArtistNames = (item: SpotifyItem) => {
+    if (item.artists) {
+      return item.artists.map((artist) => artist.name).join(", ");
+    }
+    return "";
+  };
+
+  const getAlbumName = (item: SpotifyItem) => {
+    if (item.type === "track" && item.album) {
+      return item.album.name;
+    }
+    return "";
   };
 
   if (isLoading) {
     return (
-      <div className="w-full flex justify-center">
+      <div className="flex justify-center items-center py-16">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-default-500">Searching...</p>
+          <Spinner size="lg" color="success" />
+          <p className="mt-4 text-gray-400">Searching Spotify...</p>
         </div>
       </div>
     );
   }
 
-  const hasResults =
-    (results.tracks?.items?.length ?? 0) +
-      (results.albums?.items?.length ?? 0) +
-      (results.artists?.items?.length ?? 0) >
-    0;
+  const allItems = [
+    ...(results.tracks?.items || []),
+    ...(results.albums?.items || []),
+    ...(results.artists?.items || []),
+  ];
 
-  if (!hasResults) {
+  if (allItems.length === 0) {
     return (
-      <div className="w-full text-center py-8">
-        <p className="text-default-500">
-          No results found. Try searching for something else.
-        </p>
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-800 to-gray-700 rounded-full flex items-center justify-center">
+            <svg
+              className="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-2">
+            No results found
+          </h3>
+          <p className="text-gray-400">
+            Try adjusting your search terms or check the spelling
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full space-y-6">
-      {results.tracks?.items && results.tracks.items.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">
-            Tracks ({results.tracks.total})
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {results.tracks.items.map(renderTrack)}
-          </div>
-        </div>
-      )}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-white">
+          Search Results ({allItems.length})
+        </h2>
+      </div>
 
-      {results.albums?.items && results.albums.items.length > 0 && (
-        <div>
-          <Divider className="my-6" />
-          <h3 className="text-lg font-semibold mb-4">
-            Albums ({results.albums.total})
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {results.albums.items.map(renderAlbum)}
-          </div>
-        </div>
-      )}
-
-      {results.artists?.items && results.artists.items.length > 0 && (
-        <div>
-          <Divider className="my-6" />
-          <h3 className="text-lg font-semibold mb-4">
-            Artists ({results.artists.total})
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {results.artists.items.map(renderArtist)}
-          </div>
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {allItems.map((item) => (
+          <Card
+            key={item.id}
+            className="w-full hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-default border border-gray-700 bg-gray-800 hover:bg-gray-750 rounded-xl overflow-hidden group"
+          >
+            <CardBody className="p-0">
+              {getImageUrl(item) ? (
+                <div className="w-full h-48 overflow-hidden bg-gray-900">
+                  <Image
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    src={getImageUrl(item)!}
+                  />
+                </div>
+              ) : (
+                <PlaceholderImage
+                  type={getPlaceholderType(item)}
+                  className="h-48 w-full transition-transform duration-300 group-hover:scale-110"
+                />
+              )}
+            </CardBody>
+            <CardFooter className="flex flex-col items-start gap-3 p-4">
+              <div className="flex justify-between items-start w-full gap-3">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-base truncate text-white mb-1">
+                    {item.name}
+                  </h4>
+                  {getArtistNames(item) && (
+                    <p className="text-sm text-gray-300 truncate mb-1">
+                      {getArtistNames(item)}
+                    </p>
+                  )}
+                  {getAlbumName(item) && (
+                    <p className="text-xs text-gray-400 truncate">
+                      {getAlbumName(item)}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  color={isFavorite(item.id) ? "danger" : "default"}
+                  onPress={() => handleFavoriteToggle(item)}
+                  className="cursor-pointer hover:scale-110 transition-transform flex-shrink-0"
+                >
+                  {isFavorite(item.id) ? <HeartIconFilled /> : <HeartIcon />}
+                </Button>
+              </div>
+              <Chip
+                size="sm"
+                variant="flat"
+                color={getTypeColor(item.type)}
+                className="self-start"
+              >
+                {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+              </Chip>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

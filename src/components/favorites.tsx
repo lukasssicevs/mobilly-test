@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Image,
-  Button,
-  Chip,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/react";
+import { Card, CardBody, CardFooter, Image, Button, Chip } from "@heroui/react";
 import { useFavoritesStore, SpotifyItem } from "@/store/favorites";
 import { PlaceholderImage } from "./placeholder-image";
 
@@ -47,7 +34,6 @@ const TrashIcon = () => (
 
 export function Favorites() {
   const { favorites, removeFavorite, clearFavorites } = useFavoritesStore();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleRemoveFavorite = (id: string) => {
     removeFavorite(id);
@@ -60,11 +46,11 @@ export function Favorites() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "track":
-        return "primary";
-      case "album":
-        return "secondary";
-      case "artist":
         return "success";
+      case "album":
+        return "default";
+      case "artist":
+        return "default";
       default:
         return "default";
     }
@@ -107,13 +93,13 @@ export function Favorites() {
     return (
       <div className="w-full text-center py-8">
         <div className="max-w-md mx-auto">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-800 to-gray-700 rounded-full flex items-center justify-center">
             <HeartIconFilled />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+          <h3 className="text-lg font-semibold text-white mb-2">
             No favorites yet
           </h3>
-          <p className="text-default-500">
+          <p className="text-gray-400">
             Start searching and add some items to your favorites!
           </p>
         </div>
@@ -122,157 +108,85 @@ export function Favorites() {
   }
 
   return (
-    <>
-      <div className="w-full space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">
-            Your Favorites ({favorites.length})
-          </h2>
-          <Button
-            color="danger"
-            variant="flat"
-            size="sm"
-            onPress={onOpen}
-            startContent={<TrashIcon />}
-            className="cursor-pointer hover:scale-105 transition-transform"
-          >
-            Clear All
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {favorites.map((item) => (
-            <Card
-              key={item.id}
-              className="w-full max-w-sm hover:shadow-lg transition-shadow cursor-default"
-            >
-              <CardBody className="p-0">
-                {getImageUrl(item) ? (
-                  <Image
-                    alt={item.name}
-                    className="w-full object-cover h-48"
-                    src={getImageUrl(item)!}
-                  />
-                ) : (
-                  <PlaceholderImage
-                    type={getPlaceholderType(item)}
-                    className="h-48"
-                  />
-                )}
-              </CardBody>
-              <CardFooter className="flex flex-col items-start gap-2">
-                <div className="flex justify-between items-start w-full">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm truncate">
-                      {item.name}
-                    </h4>
-                    {getArtistNames(item) && (
-                      <p className="text-xs text-default-500 truncate">
-                        {getArtistNames(item)}
-                      </p>
-                    )}
-                    {getAlbumName(item) && (
-                      <p className="text-xs text-default-400 truncate">
-                        {getAlbumName(item)}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="light"
-                    color="danger"
-                    onPress={() => handleRemoveFavorite(item.id)}
-                    className="cursor-pointer hover:scale-110 transition-transform"
-                  >
-                    <HeartIconFilled />
-                  </Button>
-                </div>
-                <Chip size="sm" variant="flat" color={getTypeColor(item.type)}>
-                  {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-                </Chip>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+    <div className="w-full space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-white">
+          Your Favorites ({favorites.length})
+        </h2>
+        <Button
+          color="danger"
+          variant="flat"
+          size="sm"
+          onPress={handleClearAll}
+          startContent={<TrashIcon />}
+          className="cursor-pointer hover:scale-105 transition-transform flex bg-red-500 rounded-2xl p-4"
+        >
+          Clear All
+        </Button>
       </div>
 
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        placement="center"
-        backdrop="blur"
-        size="md"
-        scrollBehavior="inside"
-        classNames={{
-          backdrop: "bg-black/50 backdrop-blur-sm",
-          base: "border border-gray-200 dark:border-gray-700",
-          header: "border-b border-gray-200 dark:border-gray-700",
-          footer: "border-t border-gray-200 dark:border-gray-700",
-          body: "py-6",
-        }}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-lg font-semibold">Clear All Favorites</h3>
-                <p className="text-sm text-default-500">
-                  This action cannot be undone
-                </p>
-              </ModalHeader>
-              <ModalBody>
-                <div className="flex items-center gap-3 p-4 bg-danger-50 dark:bg-danger-900/20 rounded-lg border border-danger-200 dark:border-danger-800">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="w-6 h-6 text-danger-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-danger-800 dark:text-danger-200">
-                      Are you sure you want to remove all {favorites.length}{" "}
-                      favorites?
-                    </p>
-                    <p className="text-xs text-danger-600 dark:text-danger-300 mt-1">
-                      This will permanently delete all your saved tracks,
-                      albums, and artists.
-                    </p>
-                  </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {favorites.map((item) => (
+          <Card
+            key={item.id}
+            className="w-full hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-default border border-gray-700 bg-gray-800 hover:bg-gray-750 rounded-xl overflow-hidden group"
+          >
+            <CardBody className="p-0">
+              {getImageUrl(item) ? (
+                <div className="w-full h-48 overflow-hidden bg-gray-900">
+                  <Image
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    src={getImageUrl(item)!}
+                  />
                 </div>
-              </ModalBody>
-              <ModalFooter>
+              ) : (
+                <PlaceholderImage
+                  type={getPlaceholderType(item)}
+                  className="h-48 w-full transition-transform duration-300 group-hover:scale-110"
+                />
+              )}
+            </CardBody>
+            <CardFooter className="flex flex-col items-start gap-3 p-4">
+              <div className="flex justify-between items-start w-full gap-3">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-base truncate text-white mb-1">
+                    {item.name}
+                  </h4>
+                  {getArtistNames(item) && (
+                    <p className="text-sm text-gray-300 truncate mb-1">
+                      {getArtistNames(item)}
+                    </p>
+                  )}
+                  {getAlbumName(item) && (
+                    <p className="text-xs text-gray-400 truncate">
+                      {getAlbumName(item)}
+                    </p>
+                  )}
+                </div>
                 <Button
-                  variant="flat"
-                  onPress={onClose}
-                  className="cursor-pointer"
-                >
-                  Cancel
-                </Button>
-                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
                   color="danger"
-                  onPress={() => {
-                    handleClearAll();
-                    onClose();
-                  }}
-                  className="cursor-pointer"
+                  onPress={() => handleRemoveFavorite(item.id)}
+                  className="cursor-pointer hover:scale-110 transition-transform flex-shrink-0"
                 >
-                  Clear All Favorites
+                  <HeartIconFilled />
                 </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+              </div>
+              <Chip
+                size="sm"
+                variant="flat"
+                color={getTypeColor(item.type)}
+                className="self-start"
+              >
+                {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+              </Chip>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }

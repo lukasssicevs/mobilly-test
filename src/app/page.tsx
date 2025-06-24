@@ -35,12 +35,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto">
+    <div className="min-h-screen py-8 px-4 md:px-16  w-full">
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-5xl font-bold  text-green-500 mb-4">
           Spotify Search
         </h1>
-        <p className="text-lg text-default-500">
+        <p className="text-lg text-gray-300">
           Discover and save your favorite music
         </p>
       </div>
@@ -53,16 +53,15 @@ export default function Home() {
         selectedKey={selectedTab}
         onSelectionChange={handleTabChange}
         className="w-full"
-        color="primary"
         variant="underlined"
         size="lg"
         classNames={{
           tabList:
-            "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-          cursor: "w-full bg-primary-500",
-          tab: "max-w-fit px-0 h-12 cursor-pointer",
+            "gap-6 w-full relative rounded-none p-0 border-b border-gray-700",
+          cursor: "w-full bg-green-500",
+          tab: "max-w-fit px-0 h-12 cursor-pointer data-[selected=true]:text-green-400 text-gray-400 hover:text-gray-300",
           tabContent:
-            "group-data-[selected=true]:text-primary-600 font-semibold",
+            "group-data-[selected=true]:text-green-400 font-semibold text-gray-400 hover:text-gray-300 transition-colors",
         }}
       >
         <Tab
@@ -71,7 +70,7 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <span>Search Results</span>
               {searchQuery && searchResults && (
-                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full">
+                <span className="text-xs bg-green-900/50 text-green-300 px-2 py-1 rounded-full">
                   {(searchResults.tracks?.total || 0) +
                     (searchResults.albums?.total || 0) +
                     (searchResults.artists?.total || 0)}
@@ -80,7 +79,7 @@ export default function Home() {
             </div>
           }
         >
-          <Card className="mt-6 shadow-lg">
+          <Card className="mt-6 shadow-xl">
             <CardBody className="p-6">
               {searchQuery ? (
                 <SearchResults
@@ -90,9 +89,9 @@ export default function Home() {
               ) : (
                 <div className="text-center py-16">
                   <div className="max-w-md mx-auto">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-900 to-green-800 rounded-full flex items-center justify-center">
                       <svg
-                        className="w-8 h-8 text-primary-600"
+                        className="w-8 h-8 text-green-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -105,10 +104,10 @@ export default function Home() {
                         />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                    <h3 className="text-xl font-semibold text-white mb-2">
                       Start Your Music Discovery
                     </h3>
-                    <p className="text-default-500">
+                    <p className="text-gray-400">
                       Enter a search term above to discover tracks, albums, and
                       artists from Spotify
                     </p>
@@ -125,14 +124,14 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <span>Favorites</span>
               {favorites.length > 0 && (
-                <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                <span className="text-xs bg-red-900/50 text-red-300 px-2 py-1 rounded-full">
                   {favorites.length}
                 </span>
               )}
             </div>
           }
         >
-          <Card className="mt-6 shadow-lg">
+          <Card className="mt-6 shadow-xl">
             <CardBody className="p-6">
               <Favorites />
             </CardBody>
