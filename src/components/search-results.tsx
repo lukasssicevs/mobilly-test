@@ -101,8 +101,7 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
   };
 
   const getPlaceholderType = (item: SpotifyItem) => {
-    if (item.type === "artist") return "artist";
-    return "album";
+    return item.type;
   };
 
   const getArtistNames = (item: SpotifyItem) => {
@@ -130,13 +129,12 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
     );
   }
 
-  const allItems = [
-    ...(results.tracks?.items || []),
-    ...(results.albums?.items || []),
-    ...(results.artists?.items || []),
-  ];
+  const tracks = results.tracks?.items || [];
+  const albums = results.albums?.items || [];
+  const artists = results.artists?.items || [];
+  const totalItems = tracks.length + albums.length + artists.length;
 
-  if (allItems.length === 0) {
+  if (totalItems === 0) {
     return (
       <div className="text-center py-16">
         <div className="max-w-md mx-auto">
@@ -166,77 +164,143 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
     );
   }
 
+  const renderCard = (item: SpotifyItem) => (
+    <Card
+      key={item.id}
+      className="w-full cursor-default border border-gray-700 bg-gray-800 hover:bg-gray-750 rounded-xl overflow-hidden group card-hover"
+    >
+      <CardBody className="p-0">
+        {getImageUrl(item) ? (
+          <div className="w-full h-48 bg-gray-900 image-container">
+            <Image
+              alt={item.name}
+              className="w-full h-full object-cover image-zoom"
+              src={getImageUrl(item)!}
+            />
+          </div>
+        ) : (
+          <div className="w-full h-48 image-container">
+            <PlaceholderImage
+              type={getPlaceholderType(item)}
+              className="image-zoom"
+            />
+          </div>
+        )}
+      </CardBody>
+      <CardFooter className="flex flex-col items-start gap-3 p-4">
+        <div className="flex justify-between items-start w-full gap-3">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-base truncate text-white mb-1">
+              {item.name}
+            </h4>
+            {getArtistNames(item) && (
+              <p className="text-sm text-gray-300 truncate mb-1">
+                {getArtistNames(item)}
+              </p>
+            )}
+            {getAlbumName(item) && (
+              <p className="text-xs text-gray-400 truncate">
+                {getAlbumName(item)}
+              </p>
+            )}
+          </div>
+          <Button
+            isIconOnly
+            size="sm"
+            variant="light"
+            color={isFavorite(item.id) ? "danger" : "default"}
+            onPress={() => handleFavoriteToggle(item)}
+            className="cursor-pointer flex-shrink-0 heart-button flex items-center justify-center rounded-full"
+          >
+            {isFavorite(item.id) ? <HeartIconFilled /> : <HeartIcon />}
+          </Button>
+        </div>
+        <Chip
+          size="sm"
+          variant="flat"
+          color={getTypeColor(item.type)}
+          className="self-start"
+        >
+          {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+        </Chip>
+      </CardFooter>
+    </Card>
+  );
+
+  const renderSection = (
+    title: string,
+    items: SpotifyItem[],
+    icon: React.ReactNode,
+    color: string
+  ) => {
+    if (items.length === 0) return null;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-b border-gray-700 pb-3">
+          <div
+            className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}
+          >
+            {icon}
+          </div>
+          <h3 className="text-lg font-semibold text-white">
+            {title} ({items.length})
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {items.map(renderCard)}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-8">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-white">
-          Search Results ({allItems.length})
+          Search Results ({totalItems})
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {allItems.map((item) => (
-          <Card
-            key={item.id}
-            className="w-full cursor-default border border-gray-700 bg-gray-800 hover:bg-gray-750 rounded-xl overflow-hidden group card-hover"
+      <div className="space-y-10">
+        {renderSection(
+          "Tracks",
+          tracks,
+          <svg
+            className="w-5 h-5 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
           >
-            <CardBody className="p-0">
-              {getImageUrl(item) ? (
-                <div className="w-full h-48 bg-gray-900 image-container">
-                  <Image
-                    alt={item.name}
-                    className="w-full h-full object-cover image-zoom"
-                    src={getImageUrl(item)!}
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-48 image-container">
-                  <PlaceholderImage
-                    type={getPlaceholderType(item)}
-                    className="h-48 w-full image-zoom"
-                  />
-                </div>
-              )}
-            </CardBody>
-            <CardFooter className="flex flex-col items-start gap-3 p-4">
-              <div className="flex justify-between items-start w-full gap-3">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-base truncate text-white mb-1">
-                    {item.name}
-                  </h4>
-                  {getArtistNames(item) && (
-                    <p className="text-sm text-gray-300 truncate mb-1">
-                      {getArtistNames(item)}
-                    </p>
-                  )}
-                  {getAlbumName(item) && (
-                    <p className="text-xs text-gray-400 truncate">
-                      {getAlbumName(item)}
-                    </p>
-                  )}
-                </div>
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="light"
-                  color={isFavorite(item.id) ? "danger" : "default"}
-                  onPress={() => handleFavoriteToggle(item)}
-                  className="cursor-pointer flex-shrink-0 heart-button flex items-center justify-center rounded-full"
-                >
-                  {isFavorite(item.id) ? <HeartIconFilled /> : <HeartIcon />}
-                </Button>
-              </div>
-              <Chip
-                size="sm"
-                variant="flat"
-                color={getTypeColor(item.type)}
-                className="self-start"
-              >
-                {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-              </Chip>
-            </CardFooter>
-          </Card>
-        ))}
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+          </svg>,
+          "bg-gradient-to-br from-green-600 to-green-500"
+        )}
+
+        {renderSection(
+          "Albums",
+          albums,
+          <svg
+            className="w-5 h-5 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z" />
+          </svg>,
+          "bg-gradient-to-br from-purple-600 to-purple-500"
+        )}
+
+        {renderSection(
+          "Artists",
+          artists,
+          <svg
+            className="w-5 h-5 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>,
+          "bg-gradient-to-br from-blue-600 to-blue-500"
+        )}
       </div>
     </div>
   );

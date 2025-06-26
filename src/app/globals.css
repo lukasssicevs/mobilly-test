@@ -233,7 +233,9 @@ body {
   /* Ensure the element doesn't create scrollbars when scaled */
   width: 100%;
   height: 100%;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .group:hover .image-zoom {
