@@ -3,7 +3,14 @@
 import { useState, useCallback } from "react";
 import { Autocomplete, AutocompleteItem, Button } from "@heroui/react";
 import useSWR from "swr";
-import { useFavoritesStore, SpotifyItem } from "@/store/favorites";
+import { SpotifyItem } from "@/types";
+import { getArtistNames, capitalize } from "@/utils";
+import { useFavoritesStore } from "@/store";
+import { SearchIcon } from "../common/icons/SearchIcon";
+import { MusicIcon } from "../common/icons/MusicIcon";
+import { HeartIcon } from "../common/icons/HeartIcon";
+import { HeartIconFilled } from "../common/icons/HeartIconFilled";
+import { LoadingSpinner } from "../common/icons/LoadingSpinner";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -11,84 +18,6 @@ interface SearchBarProps {
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const SearchIcon = () => (
-  <svg
-    className="w-5 h-5 text-gray-400"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
-  </svg>
-);
-
-const MusicIcon = () => (
-  <svg
-    className="w-4 h-4 text-green-400"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-  </svg>
-);
-
-const HeartIcon = () => (
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-    />
-  </svg>
-);
-
-const HeartIconFilled = () => (
-  <svg
-    className="w-4 h-4"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-  </svg>
-);
-
-const LoadingSpinner = () => (
-  <svg
-    className="animate-spin h-5 w-5 text-white"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <circle
-      className="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeWidth="4"
-    ></circle>
-    <path
-      className="opacity-75"
-      fill="currentColor"
-      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-    ></path>
-  </svg>
-);
 
 export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
   const [selectedQuery, setSelectedQuery] = useState("");
@@ -253,14 +182,13 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
                       </div>
                       {item.artists && (
                         <div className="text-sm text-gray-400 truncate">
-                          by{" "}
-                          {item.artists.map((artist) => artist.name).join(", ")}
+                          by {getArtistNames(item)}
                         </div>
                       )}
                     </div>
                     <div className="flex-shrink-0 flex items-center gap-2">
                       <div className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded-md">
-                        Track
+                        {capitalize(item.type)}
                       </div>
                       <div
                         onMouseDown={(e) => {

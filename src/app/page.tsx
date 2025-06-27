@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { Tabs, Tab, Card, CardBody } from "@heroui/react";
-import { SearchBar } from "@/components/search-bar";
-import { SearchResults } from "@/components/search-results";
-import { Favorites } from "@/components/favorites";
-import { useFavoritesStore } from "@/store/favorites";
+import { SearchBar, SearchResults, Favorites } from "@/components/pages";
+import { useFavoritesStore } from "@/store";
 import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

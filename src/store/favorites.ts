@@ -1,32 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export interface SpotifyItem {
-  id: string;
-  name: string;
-  type: "track" | "album" | "artist";
-  images?: Array<{
-    url: string;
-    height: number;
-    width: number;
-  }>;
-  artists?: Array<{
-    id: string;
-    name: string;
-  }>;
-  album?: {
-    id: string;
-    name: string;
-    images?: Array<{
-      url: string;
-      height: number;
-      width: number;
-    }>;
-  };
-  external_urls?: {
-    spotify: string;
-  };
-}
+import { SpotifyItem } from "@/types";
 
 interface FavoritesStore {
   favorites: SpotifyItem[];
