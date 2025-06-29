@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Tabs, Tab, Card, CardBody } from "@heroui/react";
-import { SearchBar, SearchResults, Favorites } from "@/components/pages";
+import { SearchBar, SearchResults, Favorites } from "@/components/pages/home";
 import { useFavoritesStore } from "@/store";
+import { ApiEndpoints } from "@/types";
 import useSWR from "swr";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import axios from "axios";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,12 +15,26 @@ export default function Home() {
 
   const { data: searchResults, isLoading } = useSWR(
     searchQuery
-      ? `/api/search?q=${encodeURIComponent(
-          searchQuery
-        )}&types=track,album,artist&limit=20`
+      ? [
+          ApiEndpoints.Search,
+          { q: searchQuery, types: "track,album,artist", limit: 20 },
+        ]
       : null,
-    fetcher,
-    { revalidateOnFocus: false }
+    ([url, params]) =>
+      axios
+        .get(url, {
+          params,
+          timeout: 10000,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => res.data),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5000,
+      errorRetryCount: 2,
+    }
   );
 
   const handleSearch = (query: string) => {

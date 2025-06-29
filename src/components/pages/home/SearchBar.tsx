@@ -3,21 +3,20 @@
 import { useState, useCallback } from "react";
 import { Autocomplete, AutocompleteItem, Button } from "@heroui/react";
 import useSWR from "swr";
-import { SpotifyItem } from "@/types";
+import axios from "axios";
+import { SpotifyItem, ApiEndpoints } from "@/types";
 import { getArtistNames, capitalize } from "@/utils";
 import { useFavoritesStore } from "@/store";
-import { SearchIcon } from "../common/icons/SearchIcon";
-import { MusicIcon } from "../common/icons/MusicIcon";
-import { HeartIcon } from "../common/icons/HeartIcon";
-import { HeartIconFilled } from "../common/icons/HeartIconFilled";
-import { LoadingSpinner } from "../common/icons/LoadingSpinner";
+import { SearchIcon } from "../../common/icons/SearchIcon";
+import { MusicIcon } from "../../common/icons/MusicIcon";
+import { HeartIcon } from "../../common/icons/HeartIcon";
+import { HeartIconFilled } from "../../common/icons/HeartIconFilled";
+import { LoadingSpinner } from "../../common/icons/LoadingSpinner";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading?: boolean;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
   const [selectedQuery, setSelectedQuery] = useState("");
@@ -25,12 +24,26 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
 
   const { data: autocompleteData, error } = useSWR(
     selectedQuery.length > 2
-      ? `/api/autocomplete?q=${encodeURIComponent(
-          selectedQuery
-        )}&type=track&limit=10`
+      ? [
+          ApiEndpoints.Search,
+          { q: selectedQuery, types: "track", limit: 10, autocomplete: true },
+        ]
       : null,
-    fetcher,
-    { revalidateOnFocus: false }
+    ([url, params]) =>
+      axios
+        .get(url, {
+          params,
+          timeout: 5000,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => res.data),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 2000,
+      errorRetryCount: 1,
+    }
   );
 
   const handleSearch = useCallback(() => {

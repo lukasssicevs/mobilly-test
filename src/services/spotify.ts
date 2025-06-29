@@ -80,6 +80,13 @@ interface SpotifySearchResponse {
   };
 }
 
+interface SearchOptions {
+  query: string;
+  types?: string[];
+  limit?: number;
+  autocomplete?: boolean; // Flag to return flattened results for autocomplete
+}
+
 class SpotifyService {
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
@@ -116,10 +123,17 @@ class SpotifyService {
   }
 
   async search(
-    query: string,
-    types: string[] = ["track", "album", "artist"],
-    limit: number = 20
-  ): Promise<SpotifySearchResponse> {
+    options: SearchOptions
+  ): Promise<
+    SpotifySearchResponse | (SpotifyTrack | SpotifyAlbum | SpotifyArtist)[]
+  > {
+    const {
+      query,
+      types = ["track", "album", "artist"],
+      limit = 20,
+      autocomplete = false,
+    } = options;
+
     const token = await this.getAccessToken();
 
     const response = await axios.get<SpotifySearchResponse>(
@@ -136,34 +150,25 @@ class SpotifyService {
       }
     );
 
-    return response.data;
-  }
+    // For autocomplete, return flattened array of items
+    if (autocomplete) {
+      const items: (SpotifyTrack | SpotifyAlbum | SpotifyArtist)[] = [];
 
-  async searchAutocomplete(
-    query: string,
-    type: string = "track",
-    limit: number = 5
-  ): Promise<SpotifyTrack[] | SpotifyAlbum[] | SpotifyArtist[]> {
-    const token = await this.getAccessToken();
-
-    const response = await axios.get<SpotifySearchResponse>(
-      `https://api.spotify.com/v1/search`,
-      {
-        params: {
-          q: query,
-          type,
-          limit,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      if (response.data.tracks?.items) {
+        items.push(...response.data.tracks.items);
       }
-    );
+      if (response.data.albums?.items) {
+        items.push(...response.data.albums.items);
+      }
+      if (response.data.artists?.items) {
+        items.push(...response.data.artists.items);
+      }
 
-    const items = response.data[`${type}s` as keyof SpotifySearchResponse] as
-      | { items: SpotifyTrack[] | SpotifyAlbum[] | SpotifyArtist[] }
-      | undefined;
-    return items?.items || [];
+      return items;
+    }
+
+    // For regular search, return full response
+    return response.data;
   }
 }
 

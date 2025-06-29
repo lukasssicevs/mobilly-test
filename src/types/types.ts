@@ -1,4 +1,4 @@
-import { ContentType } from "./content";
+export type ContentType = "track" | "album" | "artist";
 
 export interface SpotifyItem {
   id: string;
@@ -24,20 +24,5 @@ export interface SpotifyItem {
   };
   external_urls?: {
     spotify: string;
-  };
-}
-
-export interface SearchResults {
-  tracks?: {
-    items: SpotifyItem[];
-    total: number;
-  };
-  albums?: {
-    items: SpotifyItem[];
-    total: number;
-  };
-  artists?: {
-    items: SpotifyItem[];
-    total: number;
   };
 }

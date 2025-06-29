@@ -1,4 +1,6 @@
-import { ContentType } from "./content";
+export enum ApiEndpoints {
+  Search = "/api/search",
+}
 
 // Color mappings for content types
 export const TYPE_COLORS = {
@@ -13,5 +15,3 @@ export const TYPE_GRADIENTS = {
   album: "bg-gradient-to-br from-purple-600 to-purple-500",
   artist: "bg-gradient-to-br from-blue-600 to-blue-500",
 } as const;
-
-export type TypeColor = (typeof TYPE_COLORS)[ContentType];

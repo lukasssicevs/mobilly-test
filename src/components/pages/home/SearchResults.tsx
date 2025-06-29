@@ -1,13 +1,18 @@
 "use client";
 
 import { Spinner } from "@heroui/react";
-import { SpotifyItem, SearchResults as SearchResultsType } from "@/types";
+import { SpotifyItem } from "@/types";
 import { useFavoritesStore } from "@/store";
-import { ItemCard } from "../common/ItemCard";
-import { ItemSection } from "../common/ItemSection";
+import { ItemCard } from "../../common/ItemCard";
+import { ItemSection } from "../../common/ItemSection";
 
 interface SearchResultsProps {
-  results: SearchResultsType;
+  results: {
+    [key in "tracks" | "albums" | "artists"]?: {
+      items: SpotifyItem[];
+      total: number;
+    };
+  };
   isLoading: boolean;
 }
 

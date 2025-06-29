@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
       "artist",
     ];
     const limit = parseInt(searchParams.get("limit") || "20");
+    const autocomplete = searchParams.get("autocomplete") === "true";
 
     if (!query) {
       return NextResponse.json(
@@ -19,7 +20,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const results = await spotifyService.search(query, types, limit);
+    const results = await spotifyService.search({
+      query,
+      types,
+      limit,
+      autocomplete,
+    });
 
     return NextResponse.json(results);
   } catch (error) {

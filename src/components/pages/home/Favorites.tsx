@@ -3,8 +3,8 @@
 import { Button } from "@heroui/react";
 import { SpotifyItem } from "@/types";
 import { useFavoritesStore } from "@/store";
-import { TrashIcon } from "../common/icons/TrashIcon";
-import { ItemCard } from "../common/ItemCard";
+import { TrashIcon } from "../../common/icons/TrashIcon";
+import { ItemCard } from "../../common/ItemCard";
 
 export function Favorites() {
   const { favorites, removeFavorite, clearFavorites } = useFavoritesStore();
